@@ -1,7 +1,5 @@
 # T-Schedule
 
----
-
 T-Schedule is a course scheduling website to help Georgia Tech students register for classes and plan their week!
 
 ## Instructions to run

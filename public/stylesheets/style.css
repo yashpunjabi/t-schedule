@@ -1,9 +1,13 @@
 body {
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
-  color: #00B7FF;
+    color: #00B7FF;
+}
+
+.big {
+    font: 24px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 .error-message {

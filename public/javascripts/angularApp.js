@@ -3,9 +3,17 @@ var app = angular.module('tschedule', ['ui.router', 'firebase'])
 app.controller('HomeCtrl', [
     '$scope',
     '$firebaseAuth',
-    function($scope, $firebaseAuth) {
+    '$window',
+    function($scope, $firebaseAuth, $window) {
 
         var auth = $firebaseAuth();
+
+        auth.$onAuthStateChanged(function(user) {
+          if (user) {
+              $window.location.href = '/schedule';
+          }
+        });
+
 
         $scope.signin = function() {
 

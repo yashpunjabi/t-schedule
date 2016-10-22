@@ -4,11 +4,23 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var firebase = require("firebase");
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+
+var config = {
+  apiKey: "AIzaSyBI42nd8krKQuOxMvRaGYLy0IbgdVRhnrs",
+  authDomain: "helloworld-73694.firebaseapp.com",
+  databaseURL: "https://helloworld-73694.firebaseio.com",
+  storageBucket: "helloworld-73694.appspot.com",
+  messagingSenderId: "72134407615"
+};
+firebase.initializeApp(config);
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,6 +36,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+
+
+app.use(function(req, res, next) {
+    var user = firebase.auth().currentUser;
+
+    if (user) {
+        next();
+    } else {
+        res.redirect('/');
+    }
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

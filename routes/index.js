@@ -10,5 +10,10 @@ router.get('/contact', function(req, res, next) {
   res.render('contact');
 });
 
+router.get('/schedule', function(req, res, next) {
+  res.render('schedule');
+});
+
+
 
 module.exports = router;

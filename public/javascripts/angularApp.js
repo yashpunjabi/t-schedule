@@ -88,6 +88,21 @@ app.controller('HomeCtrl', [
     }
 ]);
 
+app.controller('ScheduleCtrl', [
+    '$scope',
+    '$firebaseAuth',
+    '$window',
+    function($scope, $firebaseAuth, $window) {
+        var auth = $firebaseAuth();
+        var user = auth.currentUser;
+        if (user) {
+            alert("logged in!");
+        } else {
+            alert("not logged in");
+        }
+    }
+]);
+
 
 app.config([
     '$stateProvider',

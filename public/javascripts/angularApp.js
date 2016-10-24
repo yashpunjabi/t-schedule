@@ -10,7 +10,7 @@ app.controller('HomeCtrl', [
 
         auth.$onAuthStateChanged(function(user) {
           if (user) {
-              $window.location.href = '/schedule';
+              $window.location.href = '/user';
           }
         });
 
@@ -84,21 +84,6 @@ app.controller('HomeCtrl', [
         //TODO
         $scope.forgotPassword = function() {
             alert("Coming soon");
-        }
-    }
-]);
-
-app.controller('ScheduleCtrl', [
-    '$scope',
-    '$firebaseAuth',
-    '$window',
-    function($scope, $firebaseAuth, $window) {
-        var auth = $firebaseAuth();
-        var user = auth.currentUser;
-        if (user) {
-            alert("logged in!");
-        } else {
-            alert("not logged in");
         }
     }
 ]);

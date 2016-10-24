@@ -13,6 +13,18 @@ var config = {
 };
 firebase.initializeApp(config);
 
+app.use(function(req, res, next) {
+    var auth = firebase.auth();
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+          console.log("Logged in!");
+          console.log(user);
+      } else {
+          console.log("Not logged in");
+      }
+    });
+})
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index');
@@ -24,6 +36,10 @@ router.get('/contact', function(req, res, next) {
 
 router.get('/schedule', function(req, res, next) {
   res.render('schedule');
+});
+
+router.get('/user', function(req, res, next) {
+  res.render('user');
 });
 
 

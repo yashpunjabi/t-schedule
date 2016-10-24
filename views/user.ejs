@@ -1,0 +1,121 @@
+<html>
+<head>
+  <title>T-Schedule</title>
+  <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/stylesheets/style.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.0.0/bootstrap-social.min.css" rel="stylesheet">
+
+  <script src="https://use.fontawesome.com/190e87c6e2.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+
+  <script src="https://cdn.firebase.com/libs/angularfire/2.0.1/angularfire.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.0.3/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-database.js"></script>
+  <script>
+    var config = {
+      apiKey: "AIzaSyBI42nd8krKQuOxMvRaGYLy0IbgdVRhnrs",
+      authDomain: "helloworld-73694.firebaseapp.com",
+      databaseURL: "https://helloworld-73694.firebaseio.com",
+      storageBucket: "helloworld-73694.appspot.com",
+      messagingSenderId: "72134407615"
+    };
+    firebase.initializeApp(config);
+  </script>
+  <script src="javascripts/angularUser.js"></script>
+
+  <script>
+      var auth = firebase.auth();
+      auth.onAuthStateChanged(function(user) {
+        if (!user) {
+            window.location.href = "/";
+        }
+      });
+  </script>
+</head>
+
+<body ng-app="tschedule" ng-controller="UserCtrl">
+    <div class="text-center">
+        <div class="page-header" style="margin: 0px; background: #00254c;">
+            <h1 style="margin-top: 0px;">
+                <span class="glyphicon glyphicon glyphicon-th-list" style="color: #eeb211; margin: 20px"></span> <br/>
+                <a href="/"><font color="#eeb211">T-Schedule</font></a>
+            </h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+          <!-- left column -->
+          <div class="col-md-3">
+            <div class="text-center">
+                <h1>{{username}}</h1>
+            </div>
+          </div>
+        </div>
+    	<div class="row">
+          <!-- left column -->
+          <div class="col-md-3">
+            <div class="text-center">
+              <img ng-src="{{photoURL}}" class="avatar img-circle" alt="user image" style="width: 200px; height: 200px">
+            </div>
+          </div>
+
+          <!-- edit form column -->
+          <div class="col-md-9 personal-info">
+            <!-- <div class="alert alert-info alert-dismissable">
+              <a class="panel-close close" data-dismiss="alert">×</a>
+              <i class="fa fa-coffee"></i>
+              This is an <strong>.alert</strong>. Use this to show important messages to the user.
+            </div> -->
+            <h3>Account info</h3>
+
+            <form class="form-horizontal" role="form" ng-submit="updateInfo()">
+              <div class="form-group">
+                <label class="col-lg-3 control-label">Name:</label>
+                <div class="col-lg-8">
+                  <input class="form-control" type="text" ng-model="username">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-lg-3 control-label">Email:</label>
+                <div class="col-lg-8">
+                  <input class="form-control" ng-model="email" type="text">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-md-3 control-label">New Password:</label>
+                <div class="col-md-8">
+                  <input class="form-control" ng-model="newPassword" type="password">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-md-3 control-label">Confirm new password:</label>
+                <div class="col-md-8">
+                  <input class="form-control" ng-model="confirmNewPassword" type="password">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-md-3 control-label"></label>
+                <div class="col-md-8">
+                  <button class="btn btn-primary" type="submit" style="background: #00254c; color: #eeb211">Save changes</button>
+                  <span></span>
+                  <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+                </div>
+              </div>
+            </form>
+          </div>
+      </div>
+    </div>
+
+
+    <div class="text-center">
+        <br/>
+        <hr />
+        <p>
+            T-Schedule is an online scheduling helper that aims to make life easier for Georgia Tech students! <a href="/contact">Contact us!</a>
+        </p>
+    </div>
+</body>
+</html>

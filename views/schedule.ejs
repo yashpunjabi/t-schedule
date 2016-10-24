@@ -23,12 +23,8 @@
     };
     firebase.initializeApp(config);
   </script>
-  <script src="javascripts/angularSchedule.js"></script>
-
   <script>
       var auth = firebase.auth();
-      var user = auth.currentUser;
-      console.log(user);
       auth.onAuthStateChanged(function(user) {
         if (user) {
             alert("Logged in!");
@@ -37,10 +33,9 @@
         }
       });
   </script>
-
-
 </head>
-<body ng-app="tschedule" ng-controller="ScheduleCtrl">
+
+<body>
     <div class="text-center">
         <div class="page-header" style="margin: 0px; background: #00254c;">
             <h1 style="margin-top: 0px;">

@@ -26,7 +26,6 @@ app.controller('HomeCtrl', [
             auth.$signInWithEmailAndPassword($scope.email, $scope.password)
                 .then(function(user) {
                     $scope.firebaseUser = user;
-                    alert("Sucessfully logged in!");
                 })
                 .catch(function(error) {
                   var errorCode = error.code;
@@ -54,6 +53,18 @@ app.controller('HomeCtrl', [
 
             auth.$createUserWithEmailAndPassword($scope.email, $scope.password)
                 .then(function(user) {
+                    user.updateProfile({
+                      displayName: $scope.fname + " " + $scope.lname,
+                      photoURL: "https://www.keita-gaming.com/assets/profile/default-avatar-c5d8ec086224cb6fc4e395f4ba3018c2.jpg"
+                    }).then(function(user) {
+                      console.log(user.displayName);
+                      $scope.fname = '';
+                      $scope.lname = '';
+                      $scope.email = '';
+                      $scope.password = '';
+                      $scope.password2 = '';
+                    });
+
                     $scope.firebaseUser = user;
                     alert("Sucessfully created account!");
                 })
@@ -62,19 +73,23 @@ app.controller('HomeCtrl', [
                   var errorMessage = error.message;
                   alert("" + errorCode + ": " + errorMessage);
                 });
-            $scope.fname = '';
-            $scope.lname = '';
-            $scope.email = '';
-            $scope.password = '';
-            $scope.password2 = '';
         };
 
-        //TODO
         $scope.signinFacebook = function() {
             var provider = new firebase.auth.FacebookAuthProvider();
-            auth.$signInWithPopup(provider).then(function(result) {
+            auth.$signInWithPopup(provider)
+            .then(function(result) {
                 var token = result.credential.accessToken;
                 $scope.firebaseUser = result.user;
+                var photoURL = "";
+                $scope.firebaseUser.providerData.forEach(function (profile) {
+                  if (profile.providerId==="facebook.com") {
+                      photoURL = "https://graph.facebook.com/" + profile.uid + "/picture?height=500"
+                  }
+                });
+                $scope.firebaseUser.updateProfile({
+                  photoURL: photoURL
+                });
                 alert("login successful, " + $scope.firebaseUser.displayName);
             }).catch(function(error) {
                 alert("" + error.code + ": " + error.message);

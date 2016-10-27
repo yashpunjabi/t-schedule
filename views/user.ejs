@@ -1,6 +1,7 @@
 <html>
 <head>
   <title>T-Schedule</title>
+
   <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
   <link href="/stylesheets/style.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.0.0/bootstrap-social.min.css" rel="stylesheet">
@@ -23,7 +24,6 @@
     };
     firebase.initializeApp(config);
   </script>
-  <script src="javascripts/angularUser.js"></script>
 
   <script>
       var auth = firebase.auth();
@@ -33,18 +33,25 @@
         }
       });
   </script>
+  <script src="javascripts/angularUser.js"></script>
 </head>
 
 <body ng-app="tschedule" ng-controller="UserCtrl">
     <div class="text-center">
         <div class="page-header" style="margin: 0px; background: #00254c;">
+            <br />
             <h1 style="margin-top: 0px;">
-                <span class="glyphicon glyphicon glyphicon-th-list" style="color: #eeb211; margin: 20px"></span> <br/>
                 <a href="/"><font color="#eeb211">T-Schedule</font></a>
             </h1>
         </div>
     </div>
 
+    <ul class="nav nav-pills centered test">
+      <li role="presentation" class="active"><a href="#">Profile</a></li>
+      <li role="presentation"><a href="/schedule">Schedule</a></li>
+      <li role="presentation"><a href="#">Forums</a></li>
+      <li role="presentation"><a href="#" ng-click="signout()">Sign out</a></li>
+    </ul>
     <div class="container">
         <div class="row">
           <!-- left column -->
@@ -101,10 +108,12 @@
                 <div class="col-md-8">
                   <button class="btn btn-primary" type="submit" style="background: #00254c; color: #eeb211">Save changes</button>
                   <span></span>
-                  <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+                  <a class="btn btn-default" ng-click="cancel()">Cancel</a>
                 </div>
               </div>
             </form>
+
+
           </div>
       </div>
     </div>

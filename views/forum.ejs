@@ -1,0 +1,71 @@
+<html>
+<head>
+  <title>T-Schedule</title>
+  <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/stylesheets/style.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.0.0/bootstrap-social.min.css" rel="stylesheet">
+
+  <script src="https://use.fontawesome.com/190e87c6e2.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+
+  <script src="https://cdn.firebase.com/libs/angularfire/2.0.1/angularfire.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.0.3/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-database.js"></script>
+  <script>
+    var config = {
+      apiKey: "AIzaSyBI42nd8krKQuOxMvRaGYLy0IbgdVRhnrs",
+      authDomain: "helloworld-73694.firebaseapp.com",
+      databaseURL: "https://helloworld-73694.firebaseio.com",
+      storageBucket: "helloworld-73694.appspot.com",
+      messagingSenderId: "72134407615"
+    };
+    firebase.initializeApp(config);
+  </script>
+
+  <script>
+      var auth = firebase.auth();
+      auth.onAuthStateChanged(function(user) {
+        if (!user) {
+            window.location.href = "/";
+        }
+      });
+  </script>
+  <script src="javascripts/angularSchedule.js"></script>
+</head>
+
+<body ng-app="tschedule" ng-controller="ScheduleCtrl">
+    <div class="text-center">
+        <div class="page-header" style="margin: 0px; background: #00254c;">
+            <br />
+            <h1 style="margin-top: 0px;">
+                <a href="/"><font color="#eeb211">T-Schedule</font></a>
+            </h1>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills centered test">
+      <li role="presentation"><a href="/user">Profile</a></li>
+      <li role="presentation"><a href="/schedule">Schedule</a></li>
+      <li role="presentation" class="active"><a href="/forum">Forums</a></li>
+      <li role="presentation"><a href="#" ng-click="signout()">Sign out</a></li>
+    </ul>
+
+    <div class="text-center">
+        <h1>Write Comments Below!</h1>
+		<form>
+			<textarea ng-model="textComment" placeholder="Your Comment" style='width:550px;height:90px'></textarea>
+            <button style='margin-top:10px;' ng-click="postComment()">Write your Comment</button> 
+        </form>
+		
+		<h4 class="text-center" style="font-size: 18pt">Previous Comments</h4>
+        <ul>
+			<li ng-repeat="comment in comments"> {{comment}} : {{user.displayName}} <a  style="float: right;" href=""></a></li>
+        </ul>
+        <p>
+            T-Schedule is an online scheduling helper that aims to make life easier for Georgia Tech students! <a href="/contact">Contact us!</a>
+        </p>
+    </div>
+</body>
+</html>

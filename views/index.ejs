@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>T-Schedule</title>
+  <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/stylesheets/style.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.0.0/bootstrap-social.min.css" rel="stylesheet">
+
+  <script src="https://use.fontawesome.com/190e87c6e2.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+  <script src="https://cdn.firebase.com/libs/angularfire/2.0.1/angularfire.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.0.3/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-database.js"></script>
+  <script>
+    var config = {
+      apiKey: "AIzaSyBI42nd8krKQuOxMvRaGYLy0IbgdVRhnrs",
+      authDomain: "helloworld-73694.firebaseapp.com",
+      databaseURL: "https://helloworld-73694.firebaseio.com",
+      storageBucket: "helloworld-73694.appspot.com",
+      messagingSenderId: "72134407615"
+    };
+    firebase.initializeApp(config);
+  </script>
+  <script src="/javascripts/angularApp.js"></script>
+</head>
+
+<body ng-app="tschedule" ng-controller="HomeCtrl">
+    <div class="text-center">
+        <div class="page-header" style="margin: 0px; background: #00254c;">
+            <h1 style="margin-top: 0px;">
+                <span class="glyphicon glyphicon glyphicon-th-list" style="color: #eeb211; margin: 20px"></span> <br/>
+                <a href="#"><font color="#eeb211">T-Schedule</font></a>
+            </h1>
+        </div>
+    </div>
+
+    <ui-view></ui-view>
+
+    <div class="text-center">
+        <br/>
+        <hr />
+        <p>
+            T-Schedule is an online scheduling helper that aims to make life easier for Georgia Tech students!  <a href="/contact">Contact us!</a>
+        </p>
+    </div>
+
+    <script type="text/ng-template" id="/signin.ejs">
+        <div class="container">
+          <form class="form-signin" ng-submit="signin()">
+            <h2 class="form-signin-heading">Please sign in</h2>
+            <label for="inputEmail" class="sr-only">Email address</label>
+            <input type="email" id="inputEmail" class="form-control" placeholder="Email address" ng-model="email" required autofocus>
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" class="form-control" placeholder="Password" ng-model="password" required>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="remember-me"> Remember me </input>
+              </label>
+              <a href="#/forgotPassword" style="margin-left: 70px">Forgot password</a>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit" style="background: #00254c; color: #eeb211">Sign in</button>
+          </form>
+          <div class="text-center">
+              Don't have an account? <a href="#/signup">Sign up</a>
+              <p>
+                  <br />
+                  Or
+              </p>
+              <button class="btn btn-block btn-social btn-facebook center-block" style="max-width: 300px; text-align: center;" ng-click="signinFacebook()">
+                <span class="fa fa-facebook"></span>
+                Sign in with Facebook
+              </button>
+          </div>
+        </div> <!-- /container -->
+    </script>
+
+    <script type="text/ng-template" id="/signup.ejs">
+      <div class="container">
+        <form class="form-signin" ng-submit="signup()">
+          <h2 class="form-signin-heading">Sign up!</h2>
+          <input type="text" name="firstname" value="" class="form-control input-lg" placeholder="First Name" required autofocus ng-model="fname"/>
+          <input type="text" name="lastname" value="" class="form-control input-lg" placeholder="Last Name" required ng-model="lname"/>
+          <input type="text" name="email" value="" class="form-control input-lg" placeholder="Email" required ng-model="email"/>
+          <input type="password" name="password" value="" class="form-control input-lg" placeholder="Password" required style="margin: 0px" ng-model="password"/>
+          <input type="password" name="confirm_password" value="" class="form-control input-lg" placeholder="Confirm Password" required ng-model="password2"/>
+          <button class="btn btn-lg btn-primary btn-block signup-btn" type="submit" style="background: #00254c; color: #eeb211">Create my account</button>
+        </form>
+      </div>
+    </script>
+	
+	<script type="text/ng-template" id="/forgotPassword.ejs">
+		<div class="container">
+			<form class="form-signin" ng-submit="forgotPassword()">
+				<input type="text" name="Email" value="" class="form-control input-lg" placeholder=" Type your Email Address" required autofocus ng-model="email"/>
+				<button class="btn btn-lg btn-primary btn-block signup-btn" type="submit" style="background: #00254c; color: #eeb211">Send Email</button>
+			</form>
+		</div>
+	</script>
+
+
+</body>
+</html>

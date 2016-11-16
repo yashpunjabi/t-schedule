@@ -26,8 +26,6 @@
   <script src="/javascripts/angularApp.js"></script>
 </head>
 
-
-
 <body ng-app="tschedule" ng-controller="HomeCtrl">
     <div class="text-center">
         <div class="page-header" style="margin: 0px; background: #00254c;">
@@ -60,7 +58,7 @@
               <label>
                 <input type="checkbox" value="remember-me"> Remember me </input>
               </label>
-              <a style="margin-left: 70px" ng-click="forgotPassword()">Forgot password</a>
+              <a href="#/forgotPassword" style="margin-left: 70px">Forgot password</a>
             </div>
             <button class="btn btn-lg btn-primary btn-block" type="submit" style="background: #00254c; color: #eeb211">Sign in</button>
           </form>
@@ -92,6 +90,14 @@
       </div>
     </script>
 
+	<script type="text/ng-template" id="/forgotPassword.ejs">
+		<div class="container">
+			<form class="form-signin" ng-submit="forgotPassword()">
+				<input type="text" name="Email" value="" class="form-control input-lg" placeholder=" Type your Email Address" required autofocus ng-model="email"/>
+				<button class="btn btn-lg btn-primary btn-block signup-btn" type="submit" style="background: #00254c; color: #eeb211">Send Email</button>
+			</form>
+		</div>
+	</script>
 
 </body>
 </html>

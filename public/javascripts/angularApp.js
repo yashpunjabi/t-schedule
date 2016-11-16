@@ -96,9 +96,17 @@ app.controller('HomeCtrl', [
             });
         }
 
-        //TODO
         $scope.forgotPassword = function() {
-            alert("Coming soon");
+			if ($scope.email == '') {
+				return;
+			}
+			auth.$sendPasswordResetEmail($scope.email).then(function() {
+				alert("Email Sent Succesfully!");
+				$window.location.href = "/";
+			}).catch(function(error) {
+				alert(error);
+			});
+			$scope.email = '';
         }
     }
 ]);
@@ -120,6 +128,13 @@ app.config([
                 templateUrl: '/signup.ejs',
                 controller: 'HomeCtrl',
             });
+		$stateProvider
+            .state('forgotPassword', {
+                url: '/forgotPassword',
+                templateUrl: '/forgotPassword.ejs',
+                controller: 'HomeCtrl',
+            });
+
         $urlRouterProvider.otherwise('signin');
     }
 ])

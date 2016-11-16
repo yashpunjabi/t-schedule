@@ -1,4 +1,4 @@
-var app = angular.module('tschedule', ['firebase'])
+var app = angular.module('tschedule', ['firebase']);
 
 
 app.controller('UserCtrl', [
@@ -22,6 +22,13 @@ app.controller('UserCtrl', [
             $scope.newPassword = '';
             $scope.confirmNewPassword = '';
         }
+
+
+		$scope.upload_image = function(event) {
+			var file = event.target.files[0];
+
+		}
+
 
         $scope.signout = function() {
             auth.$signOut().then(function() {

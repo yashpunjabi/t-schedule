@@ -38,6 +38,10 @@ router.get('/schedule', function(req, res, next) {
   res.render('schedule');
 });
 
+router.get('/forum', function(req, res, next) {
+  res.render('forum');
+});
+
 router.get('/user', function(req, res, next) {
   res.render('user');
 });

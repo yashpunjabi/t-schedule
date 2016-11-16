@@ -7,6 +7,7 @@ app.controller('ScheduleCtrl', [
     function($scope, $firebaseAuth, $window) {
         var auth = $firebaseAuth();
         $scope.user = null;
+		$scope.comments = [];
 
         auth.$onAuthStateChanged(function(user) {
           if (user) {
@@ -21,5 +22,13 @@ app.controller('ScheduleCtrl', [
                 alert("Error during sign out. Try again", error);
             });
         }
+
+		$scope.postComment = function() {
+			if ($scope.textComment == '') {
+				return;
+			}
+			$scope.comments.push($scope.textComment);
+		    $scope.textComment = '';
+		}
     }
 ]);

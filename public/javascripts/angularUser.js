@@ -1,4 +1,4 @@
-var app = angular.module('tschedule', ['firebase']);
+var app = angular.module('tschedule', ['firebase', 'ngNotify']);
 
 
 app.controller('UserCtrl', [
@@ -6,7 +6,8 @@ app.controller('UserCtrl', [
     '$firebaseAuth',
     '$firebase',
     '$window',
-    function($scope, $firebaseAuth, $firebase, $window) {
+	'ngNotify',
+    function($scope, $firebaseAuth, $firebase, $window, ngNotify) {
         var auth = $firebaseAuth();
         var storageRef = firebase.storage().ref();
         $scope.user = null;
@@ -58,7 +59,11 @@ app.controller('UserCtrl', [
             auth.$signOut().then(function() {
                 $window.location.href = "/";
             }, function(error) {
-                alert("Error during sign out. Try again", error);
+                ngNotify.set("Error during signout, try again!", {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+				});
             });
         }
 
@@ -68,7 +73,11 @@ app.controller('UserCtrl', [
                     displayName: $scope.username,
                     photoURL: $scope.user.photoURL
                 }).then(function() {
-                    alert("Name updated!");
+                    ngNotify.set("Name Updated!", {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+					});
                 });
             }
             if ($scope.email != $scope.user.email) {
@@ -80,7 +89,11 @@ app.controller('UserCtrl', [
             }
             if ($scope.newPassword != "" && $scope.newPassword == $scope.confirmNewPassword) {
                 $scope.user.updatePassword($scope.newPassword).then(function() {
-                    alert("Password updated!");
+                    ngNotify.set("Password updated!", {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+					});
                     $scope.newPassword = '';
                     $scope.confirmNewPassword = '';
                 }, function(error) {

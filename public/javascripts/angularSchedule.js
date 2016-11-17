@@ -19,7 +19,7 @@ app.controller('ScheduleCtrl', [
             auth.$signOut().then(function() {
                 $window.location.href = "/";
             }, function(error) {
-                alert("Error during sign out. Try again", error);
+				alert(error);
             });
         }
 

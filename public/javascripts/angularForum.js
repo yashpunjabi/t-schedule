@@ -1,10 +1,11 @@
-var app = angular.module('tschedule', ['firebase'])
+var app = angular.module('tschedule', ['firebase', 'ngNotify'])
 
 app.controller('ForumCtrl', [
     '$scope',
     '$firebaseAuth',
     '$window',
-    function($scope, $firebaseAuth, $window) {
+	'ngNotify',
+    function($scope, $firebaseAuth, $window, ngNotify) {
         var auth = $firebaseAuth();
         $scope.user = null;
 		$scope.comments = [];
@@ -19,7 +20,11 @@ app.controller('ForumCtrl', [
             auth.$signOut().then(function() {
                 $window.location.href = "/";
             }, function(error) {
-                alert("Error during sign out. Try again", error);
+				ngNotify.set("Error during signout, try again!", {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+				});
             });
         }
 

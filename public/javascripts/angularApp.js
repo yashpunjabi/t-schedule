@@ -1,10 +1,11 @@
-var app = angular.module('tschedule', ['ui.router', 'firebase'])
+var app = angular.module('tschedule', ['ui.router', 'firebase', 'ngNotify'])
 
 app.controller('HomeCtrl', [
     '$scope',
     '$firebaseAuth',
     '$window',
-    function($scope, $firebaseAuth, $window) {
+	'ngNotify',
+    function($scope, $firebaseAuth, $window, ngNotify) {
 
         var auth = $firebaseAuth();
 
@@ -30,7 +31,11 @@ app.controller('HomeCtrl', [
                 .catch(function(error) {
                   var errorCode = error.code;
                   var errorMessage = error.message;
-                  alert("" + errorCode + ": " + errorMessage);
+				  ngNotify.set('Your email or password is incorrect', {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+				  });
                 });
             $scope.email = '';
             $scope.password = '';
@@ -43,7 +48,11 @@ app.controller('HomeCtrl', [
             }
 
             if ($scope.password != $scope.password2) {
-                alert("Passwords don't match");
+                ngNotify.set('Passwords do not match', {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+				});
                 $scope.password = '';
                 $scope.password2 = '';
                 return;
@@ -66,12 +75,18 @@ app.controller('HomeCtrl', [
                     });
 
                     $scope.firebaseUser = user;
-                    alert("Sucessfully created account!");
+					ngNotify.set('Account Successfully created!', {
+				      position: 'top',
+					  duration: 350
+					});
                 })
                 .catch(function(error) {
                   var errorCode = error.code;
                   var errorMessage = error.message;
-                  alert("" + errorCode + ": " + errorMessage);
+				  ngNotify.set("" + errorCode + ": " + errorMessage, {
+				      position: 'top',
+					  duration: 350
+				  });
                 });
         };
 
@@ -91,7 +106,11 @@ app.controller('HomeCtrl', [
                   }
                 });
             }).catch(function(error) {
-                alert("" + error.code + ": " + error.message);
+				ngNotify.set("" + error.code + ": " + error.message, {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+				});
             });
         }
 
@@ -100,10 +119,19 @@ app.controller('HomeCtrl', [
 				return;
 			}
 			auth.$sendPasswordResetEmail($scope.email).then(function() {
-				alert("Email Sent Succesfully!");
+				console.log("Here")
+				ngNotify.set("Email sent Successfully", {
+				      position: 'top',
+					  duration: 150,
+					  sticky: true
+				});
 				$window.location.href = "/";
 			}).catch(function(error) {
-				alert(error);
+				ngNotify.set("" + error, {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+				});
 			});
 			$scope.email = '';
         }

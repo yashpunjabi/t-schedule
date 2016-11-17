@@ -32,7 +32,7 @@
         }
       });
   </script>
-  <script src="javascripts/angularSchedule.js"></script>
+  <script src="javascripts/angularForum.js"></script>
 </head>
 
 <body ng-app="tschedule" ng-controller="ScheduleCtrl">
@@ -56,9 +56,9 @@
         <h1>Write Comments Below!</h1>
 		<form>
 			<textarea ng-model="textComment" placeholder="Your Comment" style='width:550px;height:90px'></textarea>
-            <button style='margin-top:10px;' ng-click="postComment()">Write your Comment</button> 
+            <button style='margin-top:10px;' ng-click="postComment()">Write your Comment</button>
         </form>
-		
+
 		<h4 class="text-center" style="font-size: 18pt">Previous Comments</h4>
         <ul>
 			<li ng-repeat="comment in comments"> {{comment}} : {{user.displayName}} <a  style="float: right;" href=""></a></li>

@@ -4,9 +4,11 @@ var app = angular.module('tschedule', ['firebase']);
 app.controller('UserCtrl', [
     '$scope',
     '$firebaseAuth',
+    '$firebase',
     '$window',
-    function($scope, $firebaseAuth, $window) {
+    function($scope, $firebaseAuth, $firebase, $window) {
         var auth = $firebaseAuth();
+        var storageRef = firebase.storage().ref();
         $scope.user = null;
 
         auth.$onAuthStateChanged(function(user) {
@@ -26,7 +28,29 @@ app.controller('UserCtrl', [
 
 		$scope.upload_image = function(event) {
 			var file = event.target.files[0];
+            var metadata = {
+              'contentType': file.type,
+              'user': $scope.user.uid
+            };
 
+            $scope.$apply(function () {
+                $scope.photoURL = 'https://d13yacurqjgara.cloudfront.net/users/12755/screenshots/1037374/hex-loader2.gif';
+            });
+
+            storageRef.child('images/' + $scope.user.uid + "." + file.type).put(file, metadata).then(function(snapshot) {
+              console.log('Uploaded a blob or file!');
+              console.log(snapshot.downloadURL);
+
+              $scope.$apply(function () {
+                  $scope.photoURL = snapshot.downloadURL;
+              });
+
+
+
+              $scope.user.updateProfile({
+                photoURL: snapshot.downloadURL
+              });
+            });
 		}
 
 

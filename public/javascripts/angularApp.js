@@ -81,16 +81,15 @@ app.controller('HomeCtrl', [
             .then(function(result) {
                 var token = result.credential.accessToken;
                 $scope.firebaseUser = result.user;
-                var photoURL = "";
                 $scope.firebaseUser.providerData.forEach(function (profile) {
                   if (profile.providerId==="facebook.com") {
-                      photoURL = "https://graph.facebook.com/" + profile.uid + "/picture?height=500"
+                      if ($scope.firebaseUser.photoURL==="" || $scope.firebaseUser.photoURL ==="https://www.keita-gaming.com/assets/profile/default-avatar-c5d8ec086224cb6fc4e395f4ba3018c2.jpg") {
+                          $scope.firebaseUser.updateProfile({
+                            photoURL: "https://graph.facebook.com/" + profile.uid + "/picture?height=500"
+                          });
+                      }
                   }
                 });
-                $scope.firebaseUser.updateProfile({
-                  photoURL: photoURL
-                });
-                alert("login successful, " + $scope.firebaseUser.displayName);
             }).catch(function(error) {
                 alert("" + error.code + ": " + error.message);
             });

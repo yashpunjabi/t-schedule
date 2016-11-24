@@ -22,6 +22,9 @@ app.controller('ForumCtrl', [
             $scope.classInfo = $firebaseObject(ref.child('school').child($scope.school).child($scope.class));
             $scope.comments = $firebaseArray(ref.child('school').child($scope.school).child($scope.class).child('comments'));
         }
+        if (!$scope.classInfo) {
+            $window.location.href = '/forum#/not-found';
+        }
 
 
 
@@ -63,7 +66,6 @@ app.controller('ForumCtrl', [
                 upvotes: 1,
             }
 
-            // push(comment);
 			$scope.comments.$add(comment);
 
 		    $scope.textComment = '';

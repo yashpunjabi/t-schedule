@@ -2,13 +2,15 @@ var app = angular.module('tschedule', ['ui.router', 'firebase', 'ngNotify'])
 
 app.controller('ForumCtrl', [
     '$scope',
+    '$http',
+    '$location',
     '$firebaseAuth',
     '$firebaseObject',
     '$firebaseArray',
     '$window',
 	'ngNotify',
     '$stateParams',
-    function($scope, $firebaseAuth, $firebaseObject, $firebaseArray, $window, ngNotify, $stateParams) {
+    function($scope, $http, $location, $firebaseAuth, $firebaseObject, $firebaseArray, $window, ngNotify, $stateParams) {
         var auth = $firebaseAuth();
         var ref = firebase.database().ref();
 
@@ -19,14 +21,17 @@ app.controller('ForumCtrl', [
         $scope.class = $stateParams.class;
 
         if ($scope.school && $scope.class) {
+            ref.child('school').child($scope.school).child($scope.class).once('value', function(snapshot) {
+                if(!snapshot.val() && !($location.path() === '/search')) {
+                    $window.location.href = '/forum#/search';
+                }
+            });
             $scope.classInfo = $firebaseObject(ref.child('school').child($scope.school).child($scope.class));
             $scope.comments = $firebaseArray(ref.child('school').child($scope.school).child($scope.class).child('comments'));
         }
-        if (!$scope.classInfo) {
-            $window.location.href = '/forum#/not-found';
+        if (!$scope.classInfo && !($location.path() === '/search')) {
+            $window.location.href = '/forum#/search';
         }
-
-
 
         auth.$onAuthStateChanged(function(user) {
           if (user) {
@@ -84,7 +89,33 @@ app.controller('ForumCtrl', [
             if (comment.authorUID === $scope.user.uid) {
                 $scope.comments.$remove(comment);
             } else {
-                alert("You can't delete other people's comments");
+                ngNotify.set("You can't delete other people's comments!", {
+				      position: 'top',
+					  duration: 350,
+					  sticky: true
+				});
+            }
+        }
+
+
+        var SCHOOLS_JSON_URL = "http://coursesat.tech/spring2016/";
+        $scope.schools = ["Loading..."];
+        if ($location.path() == '/search') {
+            $http.get(SCHOOLS_JSON_URL).then(function(response) {
+                $scope.schools = response.data['schools'];
+            });
+        }
+
+        $scope.updateNumbers = function(school) {
+            $scope.numbers = null;
+            $http.get(SCHOOLS_JSON_URL + school + '/').then(function(response) {
+                $scope.numbers = response.data['numbers'];
+            });
+        }
+
+        $scope.greaterThan = function(x, y) {
+            return function(item) {
+                return item[x] > y;
             }
         }
     }
@@ -103,7 +134,7 @@ app.config([
             });
         $stateProvider
             .state('not-found', {
-                url: '/not-found',
+                url: '/search',
                 templateUrl: '/not-found.ejs',
                 controller: 'ForumCtrl',
             });

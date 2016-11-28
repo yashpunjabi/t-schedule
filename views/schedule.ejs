@@ -80,7 +80,7 @@
                         <table ng-show="dropIt" class="table table-condensed table-hover">
                           <tbody>
                             <tr ng-repeat="section in courseSections">
-                              <td><input type="checkbox"></td>
+                              <td><input type="radio" ng-model="selectedSection.val" ng-value="section.section_id" ng-change="updateSection()"></td>
                               <td>
                                   <small>
                                       {{section.section_id}}

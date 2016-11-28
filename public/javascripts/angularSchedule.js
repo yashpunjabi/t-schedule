@@ -108,5 +108,14 @@ app.controller('CourseListCtrl', [
         });
 
         $scope.dropIt = $scope.course.section === '';
+
+        $scope.selectedSection = {
+            val: $scope.course.section
+        };
+
+        $scope.updateSection = function() {
+            $scope.course.section = $scope.selectedSection.val;
+            $scope.schedule.$save($scope.course);
+        }
     }
 ]);

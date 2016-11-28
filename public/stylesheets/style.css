@@ -80,6 +80,8 @@ a {
   border-top-right-radius: 0;
 }
 
-.table td {
+/*.table td {
    text-align: center;
-}
+}*/
+
+.alert-shrink {display:inline-block;}

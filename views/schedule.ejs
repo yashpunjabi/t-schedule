@@ -54,7 +54,69 @@
 
     <div class="text-center">
         <h1>Schedule!</h1>
+    </div>
+        <div class="row">
+            <div class="col-md-7">
+                <!-- Calendar goes here -->
+            </div>
+            <div class="col-md-5">
+                <div ng-show="!schedule.length">
+                    <div class="alert alert-shrink alert-info" role="alert">No classes picked yet!</div>
+                </div>
+                <div ng-repeat="course in schedule" ng-controller="CourseListCtrl" class="row">
+                    <div class="col-md-10 well">
+                        <div class = "row">
+                            <div class="col-md-11">
+                                <a href="" ng-click="dropIt = !dropIt">
+                                    <span ng-show="dropIt">▲</span>
+                                    <span ng-hide="dropIt">▼</span>
+                                    {{course.school}} {{course.number}} {{courseName}} <span ng-hide="course.section === ''">- : {{course.section}}</span>
+                                </a>
+                            </div>
+                            <div class="col-md-1">
+                                <a href="" ng-click="delete(course)">x</a>
+                            </div>
+                        </div>
+                        <table ng-show="dropIt" class="table table-condensed table-hover">
+                          <tbody>
+                            <tr ng-repeat="section in courseSections">
+                              <td><input type="checkbox"></td>
+                              <td>
+                                  <small>
+                                      {{section.section_id}}
+                                      | <span ng-repeat="instructor in section.instructors">{{instructor}}{{$last ? '' : ', '}}</span>
+                                      | CRN: {{section.crn}} <br />
+                                      <span ng-repeat="meeting in section.meetings">
+                                          {{meeting.days}} | {{meeting.time}} | {{meeting.location}} <br />
+                                      </span>
+                                  </small>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                    </div>
+                </div>
+                <br />
+                <div>
+                    <select ng-model="school" ng-options="x for x in schools | orderBy: x" ng-change="updateNumbers(school)">
+                        <option value="" disabled selected>Select a Major/School</option>
+                    </select>
+                </div>
+                <div ng-show="school && !numbers">
+                    <select ng-model="temp" ng-options="x for x in ['Loading...']">
+                        <option value="" disabled selected>Select Course Number</option>
+                    </select>
+                </div>
+                <div ng-show="school && numbers">
+                    <select ng-model="number" ng-change="addToSchedule()" ng-options="x for x in numbers | orderBy: x | filter: greaterThan('length', 3)">
+                        <option value="" disabled selected>Select Course Number</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
+
+    <div class="text-center">
         <br/>
         <hr />
         <p>

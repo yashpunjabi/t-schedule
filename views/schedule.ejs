@@ -13,6 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase-database.js"></script>
+
   <script>
     var config = {
       apiKey: "AIzaSyBI42nd8krKQuOxMvRaGYLy0IbgdVRhnrs",
@@ -51,69 +52,100 @@
       <li role="presentation"><a href="/forum">Forums</a></li>
       <li role="presentation"><a href="#" ng-click="signout()">Sign out</a></li>
     </ul>
-
-    <div class="text-center">
-        <h1>Schedule!</h1>
-    </div>
-        <div class="row">
-            <div class="col-md-7">
-                <!-- Calendar goes here -->
-            </div>
-            <div class="col-md-5">
-                <div ng-show="!schedule.length">
-                    <div class="alert alert-shrink alert-info" role="alert">No classes picked yet!</div>
-                </div>
-                <div ng-repeat="course in schedule" ng-controller="CourseListCtrl" class="row">
-                    <div class="col-md-10 well">
-                        <div class = "row">
-                            <div class="col-md-11">
-                                <a href="" ng-click="dropIt = !dropIt">
-                                    <span ng-show="dropIt">▲</span>
-                                    <span ng-hide="dropIt">▼</span>
-                                    {{course.school}} {{course.number}} {{courseName}} <span ng-hide="course.section === ''">- : {{course.section}}</span>
-                                </a>
-                            </div>
-                            <div class="col-md-1">
-                                <a href="" ng-click="delete(course)">x</a>
-                            </div>
-                        </div>
-                        <table ng-show="dropIt" class="table table-condensed table-hover">
-                          <tbody>
-                            <tr ng-repeat="section in courseSections">
-                              <td><input type="radio" ng-model="selectedSection.val" ng-value="section.section_id" ng-change="updateSection()"></td>
-                              <td>
-                                  <small>
-                                      {{section.section_id}}
-                                      | <span ng-repeat="instructor in section.instructors">{{instructor}}{{$last ? '' : ', '}}</span>
-                                      | CRN: {{section.crn}} <br />
-                                      <span ng-repeat="meeting in section.meetings">
-                                          {{meeting.days}} | {{meeting.time}} | {{meeting.location}} <br />
-                                      </span>
-                                  </small>
-                              </td>
-                            </tr>
-                          </tbody>
+    <br />
+    <div class="row">
+        <div class="col-md-7">
+            <table class="table table-condensed" border="1">
+                <th></th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th><th>Sunday</th>
+                <tr>
+                    <td width="9%">
+                        <table>
+                            <tbody ng-repeat="i in ['08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22']">
+                                <tr>
+                                    <td>{{i}}:00</td>
+                                </tr>
+                                <tr>
+                                    <td>{{i}}:30</td>
+                                </tr>
+                            </tbody>
                         </table>
+                    </td>
+                    <td ng-repeat="col in tableCols" width="13%">
+                        <table>
+                            <tbody ng-repeat="row in col">
+                                <tr ng-if="!row.hasData" ng-repeat="i in range(row.rowspan) track by $index">
+                                    <td>
+                                        &nbsp;
+                                    </td>
+                                </tr>
+                                <tr ng-if="row.hasData">
+                                    <td rowspan="{{row.rowspan}}">
+                                        <button class="btn btn-primary btn-block btn-xs" style="width: 100%">
+                                            {{row.name}}<br />{{row.location}}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-5">
+            <div ng-show="!schedule.length">
+                <div class="alert alert-shrink alert-info" role="alert">No classes picked yet!</div>
+            </div>
+            <div ng-repeat="course in schedule" ng-controller="CourseListCtrl" class="row">
+                <div class="col-md-10 well">
+                    <div class = "row">
+                        <div class="col-md-11">
+                            <a href="" ng-click="dropIt = !dropIt">
+                                <span ng-show="dropIt">▲</span>
+                                <span ng-hide="dropIt">▼</span>
+                                {{course.school}} {{course.number}} {{courseName}} <span ng-hide="course.section === ''">- : {{course.section}}</span>
+                            </a>
+                        </div>
+                        <div class="col-md-1">
+                            <a href="" ng-click="delete(course)">x</a>
+                        </div>
                     </div>
+                    <table ng-show="dropIt" class="table table-condensed table-hover">
+                      <tbody>
+                        <tr ng-repeat="section in courseSections">
+                          <td><input type="radio" ng-model="selectedSection.val" ng-value="section.section_id" ng-change="updateSection()"></td>
+                          <td>
+                              <small>
+                                  {{section.section_id}}
+                                  | <span ng-repeat="instructor in section.instructors">{{instructor}}{{$last ? '' : ', '}}</span>
+                                  | CRN: {{section.crn}} <br />
+                                  <span ng-repeat="meeting in section.meetings">
+                                      {{meeting.days}} | {{meeting.time}} | {{meeting.location}} <br />
+                                  </span>
+                              </small>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                 </div>
-                <br />
-                <div>
-                    <select ng-model="school" ng-options="x for x in schools | orderBy: x" ng-change="updateNumbers(school)">
-                        <option value="" disabled selected>Select a Major/School</option>
-                    </select>
-                </div>
-                <div ng-show="school && !numbers">
-                    <select ng-model="temp" ng-options="x for x in ['Loading...']">
-                        <option value="" disabled selected>Select Course Number</option>
-                    </select>
-                </div>
-                <div ng-show="school && numbers">
-                    <select ng-model="number" ng-change="addToSchedule()" ng-options="x for x in numbers | orderBy: x | filter: greaterThan('length', 3)">
-                        <option value="" disabled selected>Select Course Number</option>
-                    </select>
-                </div>
+            </div>
+            <br />
+            <div>
+                <select ng-model="school" ng-options="x for x in schools | orderBy: x" ng-change="updateNumbers(school)">
+                    <option value="" disabled selected>Select a Major/School</option>
+                </select>
+            </div>
+            <div ng-show="school && !numbers">
+                <select ng-model="temp" ng-options="x for x in ['Loading...']">
+                    <option value="" disabled selected>Select Course Number</option>
+                </select>
+            </div>
+            <div ng-show="school && numbers">
+                <select ng-model="number" ng-change="addToSchedule()" ng-options="x for x in numbers | orderBy: x | filter: greaterThan('length', 3)">
+                    <option value="" disabled selected>Select Course Number</option>
+                </select>
             </div>
         </div>
+    </div>
 
 
     <div class="text-center">

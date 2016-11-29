@@ -1,4 +1,4 @@
-var app = angular.module('tschedule', ['firebase'])
+var app = angular.module('tschedule', ['firebase']);
 var CURR_SEMESTER = "spring2016";
 
 app.controller('ScheduleCtrl', [
@@ -35,6 +35,23 @@ app.controller('ScheduleCtrl', [
             }
         }
 
+        $scope.range = function(x) {
+            return new Array(x);
+        }
+
+        $scope.tableCols = [];
+        for(var i = 0; i < 7; i++) {
+            var col = [];
+            var rowData = {
+                hasData: false,
+                name: "",
+                location: "",
+                rowspan: 30
+            }
+            col.push(rowData);
+            $scope.tableCols.push(col);
+        }
+
         getUserProfile = function() {
             //add user to database if new
             ref.child('users').child($scope.user.uid).once('value', function(snapshot) {
@@ -52,6 +69,9 @@ app.controller('ScheduleCtrl', [
 
             $scope.schedule = $firebaseArray(ref.child('users').child($scope.user.uid).child(CURR_SEMESTER));
             console.log("user profile retrieved");
+
+            //populate calendar
+            //TODO
         }
 
 

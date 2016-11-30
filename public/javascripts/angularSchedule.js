@@ -52,7 +52,7 @@ app.controller('ScheduleCtrl', [
             $scope.tableCols.push(col);
         }
 
-        getUserProfile = function() {
+        function getUserProfile() {
             //add user to database if new
             ref.child('users').child($scope.user.uid).once('value', function(snapshot) {
                 if (!snapshot.val()) {
@@ -70,8 +70,84 @@ app.controller('ScheduleCtrl', [
             $scope.schedule = $firebaseArray(ref.child('users').child($scope.user.uid).child(CURR_SEMESTER));
             console.log("user profile retrieved");
 
-            //populate calendar
-            //TODO
+            $scope.schedule.$loaded().then(function() {
+                populateCalendar();
+            });
+        }
+
+        function populateCalendar() {
+            angular.forEach($scope.schedule, function(course) {
+                var sectionRef = ref.child('school').child(course.school).child(course.number).child('sections').orderByChild('section_id').equalTo(course.section);
+                sectionRef.once('value', function(snapshot) {
+                    var value = snapshot.val()[0];
+                    angular.forEach(value.meetings, function(meeting) {
+                        angular.forEach(meeting.days, function(day) {
+                            addMeetingToCalendar(course, day, meeting.time);
+                        });
+                    });
+                });
+            });
+        }
+
+        function addMeetingToCalendar(course, day, time) {
+            var dayOffset = getDayOffset(day);
+            var timeOffset = getTimeOffset(time);
+            var timeDuration = getTimeDuration(time);
+
+        }
+
+        function getDayOffset(day) {
+            switch(day) {
+                case 'M':
+                    return 0;
+                    break;
+                case 'T':
+                    return 1;
+                    break;
+                case 'W':
+                    return 2;
+                    break;
+                case 'R':
+                    return 3;
+                    break;
+                case 'F':
+                    return 4;
+                    break;
+                case 'S':
+                    return 5;
+                    break;
+                case 'N':
+                    return 6;
+                    break;
+            }
+        }
+
+        function getTimeOffset(time) {
+            var colonAt = time.indexOf(":");
+            var startTime = parseInt(time.substring(0, colonAt).trim());
+            var isAm = time.includes("am");
+            if (!isAm) {
+                startTime += 12;
+            }
+            startTime -= 8;
+            startTime *= 2;
+            //in case it is 9:25 or 9:35
+            var isHalfHour = time.substring(colonAt, colonAt + 2).includes("3") || time.substring(colonAt, colonAt + 2).includes("2");;
+            //in case it is 9:55
+            var isEndOfHour = time.substring(colonAt, colonAt + 2).includes("5");
+            if (isHalfHour) {
+                startTime += 1;
+            }
+            if (isEndOfHour) {
+                startTime += 2;
+            }
+            return startTime;
+        }
+
+        function getTimeDuration(time) {
+            var startTime = time.substring(0, time.indexOf("-"));
+            var endTime = time.substring(time.indexOf("-") + 1);
+            return getTimeOffset(endTime) - getTimeOffset(startTime);
         }
 
 

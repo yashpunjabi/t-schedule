@@ -13,6 +13,7 @@ app.controller('ScheduleCtrl', [
         var ref = firebase.database().ref();
         $scope.user = null;
 
+
         auth.$onAuthStateChanged(function(user) {
           if (user) {
               $scope.user = user;
@@ -39,18 +40,21 @@ app.controller('ScheduleCtrl', [
             return new Array(x);
         }
 
-        $scope.tableCols = [];
-        for(var i = 0; i < 7; i++) {
-            var col = [];
-            var rowData = {
-                hasData: false,
-                name: "",
-                location: "",
-                rowspan: 30
+        $scope.emptyCalendar = function() {
+            $scope.tableCols = [];
+            for(var i = 0; i < 7; i++) {
+                var col = [];
+                var rowData = {
+                    hasData: false,
+                    name: "",
+                    location: "",
+                    rowspan: 30
+                }
+                col.push(rowData);
+                $scope.tableCols.push(col);
             }
-            col.push(rowData);
-            $scope.tableCols.push(col);
         }
+        $scope.emptyCalendar();
 
         function getUserProfile() {
             //add user to database if new
@@ -71,29 +75,83 @@ app.controller('ScheduleCtrl', [
             console.log("user profile retrieved");
 
             $scope.schedule.$loaded().then(function() {
-                populateCalendar();
+                $scope.populateCalendar();
             });
         }
 
-        function populateCalendar() {
+        $scope.populateCalendar = function() {
             angular.forEach($scope.schedule, function(course) {
                 var sectionRef = ref.child('school').child(course.school).child(course.number).child('sections').orderByChild('section_id').equalTo(course.section);
                 sectionRef.once('value', function(snapshot) {
-                    var value = snapshot.val()[0];
+                    var value = getFirstNonNull(snapshot.val());
                     angular.forEach(value.meetings, function(meeting) {
                         angular.forEach(meeting.days, function(day) {
-                            addMeetingToCalendar(course, day, meeting.time);
+                            addMeetingToCalendar(course, day, meeting.time, meeting.location);
                         });
                     });
+                    console.log($scope.tableCols);
                 });
             });
         }
 
-        function addMeetingToCalendar(course, day, time) {
+        function getFirstNonNull(values) {
+            var val;
+            angular.forEach(values, function(value) {
+                if (value) {
+                    val = value;
+                    return;
+                }
+            });
+            return val;
+        }
+
+        function addMeetingToCalendar(course, day, time, location) {
             var dayOffset = getDayOffset(day);
             var timeOffset = getTimeOffset(time);
             var timeDuration = getTimeDuration(time);
 
+            console.log(course.school + course.number + ": " + timeOffset + " " + timeDuration);
+
+            var offset = 0;
+            angular.forEach($scope.tableCols[dayOffset], function(row) {
+                if (offset + row.rowspan > timeOffset) {
+                    if (row.hasData) {
+                        alert("conflict");
+                    } else {
+                        var oldRowspan = row.rowspan;
+                        var removeIndex = $scope.tableCols[dayOffset].indexOf(row);
+                        $scope.tableCols[dayOffset].splice(removeIndex, 1);
+                        if (timeOffset - offset > 0) {
+                            var rowData = {
+                                hasData: false,
+                                name: "",
+                                location: "",
+                                rowspan: (timeOffset - offset)
+                            }
+                            $scope.tableCols[dayOffset].push(rowData);
+                        }
+
+                        var rowData = {
+                            hasData: true,
+                            name: course.school + " " + course.number,
+                            location: location,
+                            rowspan: timeDuration
+                        }
+                        $scope.tableCols[dayOffset].push(rowData);
+
+                        if (timeDuration < oldRowspan) {
+                            var rowData = {
+                                hasData: false,
+                                name: "",
+                                location: "",
+                                rowspan: (oldRowspan - timeDuration) - (timeOffset - offset)
+                            }
+                            $scope.tableCols[dayOffset].push(rowData);
+                        }
+                    }
+                }
+                offset += row.rowspan;
+            });
         }
 
         function getDayOffset(day) {
@@ -150,7 +208,6 @@ app.controller('ScheduleCtrl', [
             return getTimeOffset(endTime) - getTimeOffset(startTime);
         }
 
-
         var SCHOOLS_JSON_URL = "http://coursesat.tech/spring2016/";
         $scope.schools = ["Loading..."];
         $http.get(SCHOOLS_JSON_URL).then(function(response) {
@@ -182,9 +239,11 @@ app.controller('ScheduleCtrl', [
             });
         }
 
-
         $scope.delete = function(course) {
-            $scope.schedule.$remove(course);
+            $scope.schedule.$remove(course).then(function() {
+                $scope.emptyCalendar();
+                $scope.populateCalendar();
+            });
         }
 
     }
@@ -211,7 +270,10 @@ app.controller('CourseListCtrl', [
 
         $scope.updateSection = function() {
             $scope.course.section = $scope.selectedSection.val;
-            $scope.schedule.$save($scope.course);
+            $scope.schedule.$save($scope.course).then(function() {
+                $scope.emptyCalendar();
+                $scope.populateCalendar();
+            });
         }
     }
 ]);

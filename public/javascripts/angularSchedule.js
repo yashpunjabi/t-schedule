@@ -39,20 +39,24 @@ app.controller('ScheduleCtrl', [
             return new Array(x);
         }
 
-        $scope.tableCols = [];
-        for(var i = 0; i < 7; i++) {
-            var col = [];
-            var rowData = {
-                hasData: false,
-                name: "",
-                location: "",
-                rowspan: 30
+        $scope.emptyCalendar = function() {
+            $scope.credits = 0;
+            $scope.tableCols = [];
+            for(var i = 0; i < 7; i++) {
+                var col = [];
+                var rowData = {
+                    hasData: false,
+                    name: "",
+                    location: "",
+                    rowspan: 30
+                }
+                col.push(rowData);
+                $scope.tableCols.push(col);
             }
-            col.push(rowData);
-            $scope.tableCols.push(col);
         }
+        $scope.emptyCalendar();
 
-        getUserProfile = function() {
+        function getUserProfile() {
             //add user to database if new
             ref.child('users').child($scope.user.uid).once('value', function(snapshot) {
                 if (!snapshot.val()) {
@@ -70,10 +74,164 @@ app.controller('ScheduleCtrl', [
             $scope.schedule = $firebaseArray(ref.child('users').child($scope.user.uid).child(CURR_SEMESTER));
             console.log("user profile retrieved");
 
-            //populate calendar
-            //TODO
+            $scope.schedule.$loaded().then(function() {
+                $scope.populateCalendar();
+            });
         }
 
+        $scope.populateCalendar = function() {
+            angular.forEach($scope.schedule, function(course) {
+                var classData = $firebaseObject(ref.child('school').child(course.school).child(course.number));
+                classData.$loaded().then(function() {
+                    var credits = classData.hours;
+                    credits = credits.trim().substring(0, 1);
+                    credits = parseInt(credits);
+                    $scope.credits += credits;
+                });
+                var sectionRef = ref.child('school').child(course.school).child(course.number).child('sections').orderByChild('section_id').equalTo(course.section);
+                sectionRef.once('value', function(snapshot) {
+                    var value = getFirstNonNull(snapshot.val());
+                    angular.forEach(value.meetings, function(meeting) {
+                        angular.forEach(meeting.days, function(day) {
+                            addMeetingToCalendar(course, day, meeting.time, meeting.location);
+                        });
+                    });
+                    console.log($scope.tableCols);
+                });
+            });
+        }
+
+        function getFirstNonNull(values) {
+            var val;
+            angular.forEach(values, function(value) {
+                if (value) {
+                    val = value;
+                    return;
+                }
+            });
+            return val;
+        }
+
+        function addMeetingToCalendar(course, day, time, location) {
+            var dayOffset = getDayOffset(day);
+            var timeOffset = getTimeOffset(time);
+            var timeDuration = getTimeDuration(time);
+
+            console.log(course.school + course.number + "- offset:" + timeOffset + " length:" + timeDuration + " day: " + dayOffset);
+
+            var offset = 0;
+            var keepGoing = true;
+            // for (var i = 0; i < $scope.tableCols[dayOffset].length; i++) {
+            //     var row = $scope.tableCols[dayOffset][i];
+            //     var nextRow = null;
+            //     if (i < $scope.tableCols[dayOffset].length - 1) {
+            //         nextRow = $scope.tableCols[dayOffset][i + 1]
+            //     }
+            //
+            // }
+            angular.forEach($scope.tableCols[dayOffset], function(row) {
+                console.log(course.school + course.number + " curr offset: " + offset);
+                if (offset + row.rowspan > timeOffset && keepGoing) {
+                    if (row.hasData) {
+                        alert("conflict");
+                        $scope.delete(course);
+                    } else {
+                        var oldRowspan = row.rowspan;
+                        var currIndex = $scope.tableCols[dayOffset].indexOf(row);
+                        $scope.tableCols[dayOffset].splice(currIndex, 1);
+                        if (timeOffset - offset > 0) {
+                            var rowData1 = {
+                                hasData: false,
+                                name: "",
+                                location: "",
+                                rowspan: (timeOffset - offset)
+                            }
+                            $scope.tableCols[dayOffset].splice(currIndex, 0, rowData1);
+                            currIndex += 1;
+                        }
+
+                        var rowData2 = {
+                            hasData: true,
+                            name: course.school + " " + course.number,
+                            location: location,
+                            rowspan: timeDuration
+                        }
+                        $scope.tableCols[dayOffset].splice(currIndex, 0, rowData2);
+                        currIndex += 1;
+
+                        if (timeOffset - offset + timeDuration < oldRowspan) {
+                            var rowData3 = {
+                                hasData: false,
+                                name: "",
+                                location: "",
+                                rowspan: oldRowspan - (timeDuration + timeOffset - offset)
+                            }
+                            $scope.tableCols[dayOffset].splice(currIndex, 0, rowData3);
+                        }
+                        console.log(course.school + course.number + " added to array for day " + dayOffset + " and offset " + offset);
+                    }
+                    keepGoing = false;
+                }
+                if (keepGoing) {
+                    offset += row.rowspan;
+                    console.log("Offset updated by " + row.rowspan);
+                }
+            });
+        }
+
+        function getDayOffset(day) {
+            switch(day) {
+                case 'M':
+                    return 0;
+                    break;
+                case 'T':
+                    return 1;
+                    break;
+                case 'W':
+                    return 2;
+                    break;
+                case 'R':
+                    return 3;
+                    break;
+                case 'F':
+                    return 4;
+                    break;
+                case 'S':
+                    return 5;
+                    break;
+                case 'N':
+                    return 6;
+                    break;
+            }
+        }
+
+        function getTimeOffset(time) {
+            var colonAt = time.indexOf(":");
+            var startTime = parseInt(time.substring(0, colonAt).trim());
+            var isAm = time.includes("am");
+            if (!isAm) {
+                startTime += 12;
+            }
+            startTime -= 8;
+            startTime *= 2;
+            //in case it is 9:25 or 9:35
+            var isHalfHour = time.substring(colonAt, colonAt + 2).includes("3") || time.substring(colonAt, colonAt + 2).includes("2");;
+            //in case it is 9:55
+            var isEndOfHour = time.substring(colonAt, colonAt + 2).includes("5");
+            if (isHalfHour) {
+                startTime += 1;
+            }
+            if (isEndOfHour) {
+                startTime += 2;
+            }
+            return startTime;
+        }
+
+        function getTimeDuration(time) {
+            var startTime = time.substring(0, time.indexOf("-"));
+            var endTime = time.substring(time.indexOf("-") + 1);
+            return getTimeOffset(endTime) - getTimeOffset(startTime);
+        }
 
         var SCHOOLS_JSON_URL = "http://coursesat.tech/spring2016/";
         $scope.schools = ["Loading..."];
@@ -100,15 +258,17 @@ app.controller('ScheduleCtrl', [
         }
 
         $scope.getName = function(course) {
-            var classData = $firebaseObject(ref.child('school').child(course.school).child(course.number))
+            var classData = $firebaseObject(ref.child('school').child(course.school).child(course.number));
             classData.$loaded().then(function() {
                 return classData.name;
             });
         }
 
-
         $scope.delete = function(course) {
-            $scope.schedule.$remove(course);
+            $scope.schedule.$remove(course).then(function() {
+                $scope.emptyCalendar();
+                $scope.populateCalendar();
+            });
         }
 
     }
@@ -137,7 +297,7 @@ app.controller('CourseListCtrl', [
                             for (var i = 0; i < $scope.courseSections.length; i++) {
                                 for (var j = 0; j < $scope.courseSections[i].instructors.length; j++) {
                                     if ($scope.courseSections[i].instructors[j] === instructor) {
-                                        $scope.courseSections[i].instructors[j] += " |  ★"+ response.avgRating;
+                                        $scope.courseSections[i].instructors[j] += " ★"+ response.avgRating;
                                     }
                                 }
                             }
@@ -157,8 +317,14 @@ app.controller('CourseListCtrl', [
         };
 
         $scope.updateSection = function() {
+            if ($scope.course.section === $scope.selectedSection.val) {
+                return;
+            }
             $scope.course.section = $scope.selectedSection.val;
-            $scope.schedule.$save($scope.course);
+            $scope.schedule.$save($scope.course).then(function() {
+                $scope.emptyCalendar();
+                $scope.populateCalendar();
+            });
         }
     }
 ]);

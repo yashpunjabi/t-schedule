@@ -41,6 +41,7 @@ app.controller('ScheduleCtrl', [
         }
 
         $scope.emptyCalendar = function() {
+            $scope.credits = 0;
             $scope.tableCols = [];
             for(var i = 0; i < 7; i++) {
                 var col = [];
@@ -81,6 +82,13 @@ app.controller('ScheduleCtrl', [
 
         $scope.populateCalendar = function() {
             angular.forEach($scope.schedule, function(course) {
+                var classData = $firebaseObject(ref.child('school').child(course.school).child(course.number));
+                classData.$loaded().then(function() {
+                    var credits = classData.hours;
+                    credits = credits.trim().substring(0, 1);
+                    credits = parseInt(credits);
+                    $scope.credits += credits;
+                });
                 var sectionRef = ref.child('school').child(course.school).child(course.number).child('sections').orderByChild('section_id').equalTo(course.section);
                 sectionRef.once('value', function(snapshot) {
                     var value = getFirstNonNull(snapshot.val());
@@ -130,9 +138,8 @@ app.controller('ScheduleCtrl', [
                         $scope.delete(course);
                     } else {
                         var oldRowspan = row.rowspan;
-                        var removeIndex = $scope.tableCols[dayOffset].indexOf(row);
-                        $scope.tableCols[dayOffset].splice(removeIndex, 1);
-                        var addedBefore = 0;
+                        var currIndex = $scope.tableCols[dayOffset].indexOf(row);
+                        $scope.tableCols[dayOffset].splice(currIndex, 1);
                         if (timeOffset - offset > 0) {
                             var rowData1 = {
                                 hasData: false,
@@ -140,8 +147,8 @@ app.controller('ScheduleCtrl', [
                                 location: "",
                                 rowspan: (timeOffset - offset)
                             }
-                            $scope.tableCols[dayOffset].splice(removeIndex, 0, rowData1);
-                            addedBefore = 1;
+                            $scope.tableCols[dayOffset].splice(currIndex, 0, rowData1);
+                            currIndex += 1;
                         }
 
                         var rowData2 = {
@@ -150,7 +157,8 @@ app.controller('ScheduleCtrl', [
                             location: location,
                             rowspan: timeDuration
                         }
-                        $scope.tableCols[dayOffset].splice(removeIndex + addedBefore, 0, rowData2);
+                        $scope.tableCols[dayOffset].splice(currIndex, 0, rowData2);
+                        currIndex += 1;
 
                         if (timeOffset - offset + timeDuration < oldRowspan) {
                             var rowData3 = {
@@ -159,7 +167,7 @@ app.controller('ScheduleCtrl', [
                                 location: "",
                                 rowspan: oldRowspan - (timeDuration + timeOffset - offset)
                             }
-                            $scope.tableCols[dayOffset].splice(removeIndex + addedBefore + 1, 0, rowData3);
+                            $scope.tableCols[dayOffset].splice(currIndex, 0, rowData3);
                         }
                         console.log(course.school + course.number + " added to array for day " + dayOffset + " and offset " + offset);
                     }
@@ -251,7 +259,7 @@ app.controller('ScheduleCtrl', [
         }
 
         $scope.getName = function(course) {
-            var classData = $firebaseObject(ref.child('school').child(course.school).child(course.number))
+            var classData = $firebaseObject(ref.child('school').child(course.school).child(course.number));
             classData.$loaded().then(function() {
                 return classData.name;
             });

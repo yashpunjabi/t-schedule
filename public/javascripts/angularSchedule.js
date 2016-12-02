@@ -1,5 +1,6 @@
 var app = angular.module('tschedule', ['firebase']);
 var CURR_SEMESTER = "spring2016";
+var professor;
 
 app.controller('ScheduleCtrl', [
     '$scope',
@@ -12,7 +13,6 @@ app.controller('ScheduleCtrl', [
         var auth = $firebaseAuth();
         var ref = firebase.database().ref();
         $scope.user = null;
-
         auth.$onAuthStateChanged(function(user) {
           if (user) {
               $scope.user = user;
@@ -118,13 +118,36 @@ app.controller('CourseListCtrl', [
     '$scope',
     '$firebaseObject',
     '$firebaseArray',
-    function($scope, $firebaseObject, $firebaseArray) {
-        var ref = firebase.database().ref();
+    '$http',
+    function($scope, $firebaseObject, $firebaseArray, $http) {
 
+        function getLastName(name) {
+            return name.substring(name.lastIndexOf(" ") + 1, name.length);
+        }
+        var ref = firebase.database().ref();
         var classData = $firebaseObject(ref.child('school').child($scope.course.school).child($scope.course.number));
         classData.$loaded().then(function() {
             $scope.courseName = classData.name;
             $scope.courseSections = classData.sections;
+            angular.forEach($scope.courseSections, function(section) {
+                angular.forEach(section.instructors, function(instructor) {
+                    $http.get("https://ratesbu-wrapper-api.appspot.com/Georgia%20Institute%20of%20Technology/" + getLastName(instructor))
+                    .success(function(response) {
+                        if (response) {
+                            for (var i = 0; i < $scope.courseSections.length; i++) {
+                                for (var j = 0; j < $scope.courseSections[i].instructors.length; j++) {
+                                    if ($scope.courseSections[i].instructors[j] === instructor) {
+                                        $scope.courseSections[i].instructors[j] += " |  ★"+ response.avgRating;
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    .catch(function(next) {
+                        console.log(next.status);
+                    });
+                });
+            });
         });
 
         $scope.dropIt = $scope.course.section === '';

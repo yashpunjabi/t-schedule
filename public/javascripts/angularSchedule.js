@@ -110,47 +110,65 @@ app.controller('ScheduleCtrl', [
             var timeOffset = getTimeOffset(time);
             var timeDuration = getTimeDuration(time);
 
-            console.log(course.school + course.number + ": " + timeOffset + " " + timeDuration);
+            console.log(course.school + course.number + "- offset:" + timeOffset + " length:" + timeDuration + " day: " + dayOffset);
 
             var offset = 0;
+            var keepGoing = true;
+            // for (var i = 0; i < $scope.tableCols[dayOffset].length; i++) {
+            //     var row = $scope.tableCols[dayOffset][i];
+            //     var nextRow = null;
+            //     if (i < $scope.tableCols[dayOffset].length - 1) {
+            //         nextRow = $scope.tableCols[dayOffset][i + 1]
+            //     }
+            //
+            // }
             angular.forEach($scope.tableCols[dayOffset], function(row) {
-                if (offset + row.rowspan > timeOffset) {
+                console.log(course.school + course.number + " curr offset: " + offset);
+                if (offset + row.rowspan > timeOffset && keepGoing) {
                     if (row.hasData) {
                         alert("conflict");
+                        $scope.delete(course);
                     } else {
                         var oldRowspan = row.rowspan;
                         var removeIndex = $scope.tableCols[dayOffset].indexOf(row);
                         $scope.tableCols[dayOffset].splice(removeIndex, 1);
+                        var addedBefore = 0;
                         if (timeOffset - offset > 0) {
-                            var rowData = {
+                            var rowData1 = {
                                 hasData: false,
                                 name: "",
                                 location: "",
                                 rowspan: (timeOffset - offset)
                             }
-                            $scope.tableCols[dayOffset].push(rowData);
+                            $scope.tableCols[dayOffset].splice(removeIndex, 0, rowData1);
+                            addedBefore = 1;
                         }
 
-                        var rowData = {
+                        var rowData2 = {
                             hasData: true,
                             name: course.school + " " + course.number,
                             location: location,
                             rowspan: timeDuration
                         }
-                        $scope.tableCols[dayOffset].push(rowData);
+                        $scope.tableCols[dayOffset].splice(removeIndex + addedBefore, 0, rowData2);
 
-                        if (timeDuration < oldRowspan) {
-                            var rowData = {
+                        if (timeOffset - offset + timeDuration < oldRowspan) {
+                            var rowData3 = {
                                 hasData: false,
                                 name: "",
                                 location: "",
-                                rowspan: (oldRowspan - timeDuration) - (timeOffset - offset)
+                                rowspan: oldRowspan - (timeDuration + timeOffset - offset)
                             }
-                            $scope.tableCols[dayOffset].push(rowData);
+                            $scope.tableCols[dayOffset].splice(removeIndex + addedBefore + 1, 0, rowData3);
                         }
+                        console.log(course.school + course.number + " added to array for day " + dayOffset + " and offset " + offset);
                     }
+                    keepGoing = false;
                 }
-                offset += row.rowspan;
+                if (keepGoing) {
+                    offset += row.rowspan;
+                    console.log("Offset updated by " + row.rowspan);
+                }
             });
         }
 
@@ -269,6 +287,9 @@ app.controller('CourseListCtrl', [
         };
 
         $scope.updateSection = function() {
+            if ($scope.course.section === $scope.selectedSection.val) {
+                return;
+            }
             $scope.course.section = $scope.selectedSection.val;
             $scope.schedule.$save($scope.course).then(function() {
                 $scope.emptyCalendar();

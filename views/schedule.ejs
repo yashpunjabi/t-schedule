@@ -84,8 +84,8 @@
                                             <small>{{row.name}}<br />{{row.location}}</small>
                                         </div>
                                         <div ng-if="row.rowspan === 3">
-                                            <div ng-if="row.location.length > 10" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
-                                                <small>{{row.name}}<br />{{row.location.substring(0, 10)}}-<br />{{row.location.substring(10)}}</small>
+                                            <div ng-if="row.location.length > 12" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
+                                                <small>{{row.name}}<br />{{row.location.substring(0, 12)}}-<br />{{row.location.substring(12)}}</small>
                                             </div>
                                             <small ng-if="row.location.length <= 10">{{row.name}} <br />{{row.location}}</small>
                                         </div>

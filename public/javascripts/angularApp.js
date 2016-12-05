@@ -9,6 +9,7 @@ app.controller('HomeCtrl', [
 
         var auth = $firebaseAuth();
 
+        //get currently logged in user
         auth.$onAuthStateChanged(function(user) {
           if (user) {
               $window.location.href = '/user';
@@ -41,6 +42,7 @@ app.controller('HomeCtrl', [
             $scope.password = '';
         };
 
+        //Creates a user. Displays alerts if there are problems
         $scope.signup = function() {
 
             if ($scope.fname == '' || $scope.lname == '' || $scope.email == '' || $scope.password == '' || $scope.password2 == '') {
@@ -64,6 +66,7 @@ app.controller('HomeCtrl', [
                 .then(function(user) {
                     user.updateProfile({
                       displayName: $scope.fname + " " + $scope.lname,
+                      //default avatar/photo
                       photoURL: "https://www.keita-gaming.com/assets/profile/default-avatar-c5d8ec086224cb6fc4e395f4ba3018c2.jpg"
                     }).then(function(user) {
                       console.log(user.displayName);
@@ -99,6 +102,7 @@ app.controller('HomeCtrl', [
                 $scope.firebaseUser.providerData.forEach(function (profile) {
                   if (profile.providerId==="facebook.com") {
                       if ($scope.firebaseUser.photoURL==="" || $scope.firebaseUser.photoURL ==="https://www.keita-gaming.com/assets/profile/default-avatar-c5d8ec086224cb6fc4e395f4ba3018c2.jpg") {
+                          //set facebook photo as default user image
                           $scope.firebaseUser.updateProfile({
                             photoURL: "https://graph.facebook.com/" + profile.uid + "/picture?height=500"
                           });
@@ -119,7 +123,6 @@ app.controller('HomeCtrl', [
 				return;
 			}
 			auth.$sendPasswordResetEmail($scope.email).then(function() {
-				console.log("Here")
 				ngNotify.set("Email sent Successfully", {
 				      position: 'top',
 					  duration: 150,

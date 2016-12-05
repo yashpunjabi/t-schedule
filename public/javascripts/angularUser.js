@@ -12,6 +12,7 @@ app.controller('UserCtrl', [
         var storageRef = firebase.storage().ref();
         $scope.user = null;
 
+        //get the currently signed in user
         auth.$onAuthStateChanged(function(user) {
           if (user) {
               $scope.user = user;
@@ -26,7 +27,8 @@ app.controller('UserCtrl', [
             $scope.confirmNewPassword = '';
         }
 
-
+        //gets file from computer and uploads it to firebase
+        //sets the users photoURL to this new image
 		$scope.upload_image = function(event) {
 			var file = event.target.files[0];
             var metadata = {
@@ -34,6 +36,7 @@ app.controller('UserCtrl', [
               'user': $scope.user.uid
             };
 
+            //loading gif to display while the image is uploading
             $scope.$apply(function () {
                 $scope.photoURL = 'https://d13yacurqjgara.cloudfront.net/users/12755/screenshots/1037374/hex-loader2.gif';
             });
@@ -67,6 +70,7 @@ app.controller('UserCtrl', [
             });
         }
 
+        //pushes any changed user information to firebase
         $scope.updateInfo = function() {
             if ($scope.username != $scope.user.displayName) {
                 $scope.user.updateProfile({
@@ -82,7 +86,6 @@ app.controller('UserCtrl', [
             }
             if ($scope.email != $scope.user.email) {
                 $scope.user.updateEmail($scope.email).then(function() {
-
                 }, function(error) {
                     alert("There was an error", error, "\n sign out and sign back in and then try again");
                 })

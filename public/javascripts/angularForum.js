@@ -20,6 +20,7 @@ app.controller('ForumCtrl', [
         $scope.school = $stateParams.school;
         $scope.class = $stateParams.class;
 
+        //Get class data from the database - redirect to search if not found
         if ($scope.school && $scope.class) {
             ref.child('school').child($scope.school).child($scope.class).once('value', function(snapshot) {
                 if(!snapshot.val() && !($location.path() === '/search')) {
@@ -29,10 +30,12 @@ app.controller('ForumCtrl', [
             $scope.classInfo = $firebaseObject(ref.child('school').child($scope.school).child($scope.class));
             $scope.comments = $firebaseArray(ref.child('school').child($scope.school).child($scope.class).child('comments'));
         }
+        //if class not found, redirect to the search page.
         if (!$scope.classInfo && !($location.path() === '/search')) {
             $window.location.href = '/forum#/search';
         }
 
+        //get currently signed in user
         auth.$onAuthStateChanged(function(user) {
           if (user) {
               $scope.user = user;
@@ -51,6 +54,7 @@ app.controller('ForumCtrl', [
             });
         }
 
+        //pushes comment to the database with current date
 		$scope.postComment = function() {
 			if ($scope.textComment == '') {
 				return;
@@ -97,7 +101,7 @@ app.controller('ForumCtrl', [
             }
         }
 
-
+        //for the search page - gets list of schools for dropdown
         var SCHOOLS_JSON_URL = "http://coursesat.tech/spring2016/";
         $scope.schools = ["Loading..."];
         if ($location.path() == '/search') {
@@ -106,6 +110,8 @@ app.controller('ForumCtrl', [
             });
         }
 
+        //when a school is selected in the first dropdown, populate the second one
+        //with courses under that school
         $scope.updateNumbers = function(school) {
             $scope.numbers = null;
             $http.get(SCHOOLS_JSON_URL + school + '/').then(function(response) {
@@ -113,6 +119,7 @@ app.controller('ForumCtrl', [
             });
         }
 
+        //to help sort the courses in ascending order
         $scope.greaterThan = function(x, y) {
             return function(item) {
                 return item[x] > y;
@@ -121,7 +128,7 @@ app.controller('ForumCtrl', [
     }
 ]);
 
-
+//routing
 app.config([
     '$stateProvider',
     '$urlRouterProvider',

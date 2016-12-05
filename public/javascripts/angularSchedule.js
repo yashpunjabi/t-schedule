@@ -13,6 +13,8 @@ app.controller('ScheduleCtrl', [
         var auth = $firebaseAuth();
         var ref = firebase.database().ref();
         $scope.user = null;
+
+        //get currently signed in user
         auth.$onAuthStateChanged(function(user) {
           if (user) {
               $scope.user = user;
@@ -28,17 +30,19 @@ app.controller('ScheduleCtrl', [
             });
         }
 
-        //used in filterBy's
+        //used in filterBy's to sort classes in ascending order
         $scope.greaterThan = function(x, y) {
             return function(item) {
                 return item[x] > y;
             }
         }
 
+        //helps with looping in the html since only for each loops are allowed
         $scope.range = function(x) {
             return new Array(x);
         }
 
+        //removes all classes from the calendar view
         $scope.emptyCalendar = function() {
             $scope.credits = 0;
             $scope.tableCols = [];
@@ -56,6 +60,7 @@ app.controller('ScheduleCtrl', [
         }
         $scope.emptyCalendar();
 
+        //gets user data from the database and populates the calendar view with their classes
         function getUserProfile() {
             //add user to database if new
             ref.child('users').child($scope.user.uid).once('value', function(snapshot) {
@@ -79,6 +84,7 @@ app.controller('ScheduleCtrl', [
             });
         }
 
+        //populates the calendar view with the users classes - sums the credit hours count as well
         $scope.populateCalendar = function() {
             angular.forEach($scope.schedule, function(course) {
                 var classData = $firebaseObject(ref.child('school').child(course.school).child(course.number));
@@ -88,6 +94,7 @@ app.controller('ScheduleCtrl', [
                     credits = parseInt(credits);
                     $scope.credits += credits;
                 });
+                //adds each meeting to the calendar
                 var sectionRef = ref.child('school').child(course.school).child(course.number).child('sections').orderByChild('section_id').equalTo(course.section);
                 sectionRef.once('value', function(snapshot) {
                     var value = getFirstNonNull(snapshot.val());
@@ -101,6 +108,7 @@ app.controller('ScheduleCtrl', [
             });
         }
 
+        //helps when firebase returns an array instead of a single object
         function getFirstNonNull(values) {
             var val;
             angular.forEach(values, function(value) {
@@ -112,6 +120,7 @@ app.controller('ScheduleCtrl', [
             return val;
         }
 
+        //adds a meeting to the calendar - a course can consist of more than one meeting
         function addMeetingToCalendar(course, day, time, location) {
             var dayOffset = getDayOffset(day);
             var timeOffset = getTimeOffset(time);
@@ -119,16 +128,8 @@ app.controller('ScheduleCtrl', [
 
             console.log(course.school + course.number + "- offset:" + timeOffset + " length:" + timeDuration + " day: " + dayOffset);
 
-            var offset = 0;
-            var keepGoing = true;
-            // for (var i = 0; i < $scope.tableCols[dayOffset].length; i++) {
-            //     var row = $scope.tableCols[dayOffset][i];
-            //     var nextRow = null;
-            //     if (i < $scope.tableCols[dayOffset].length - 1) {
-            //         nextRow = $scope.tableCols[dayOffset][i + 1]
-            //     }
-            //
-            // }
+            var offset = 0; //current position in the array
+            var keepGoing = true; //because there is no way to break out of a angular for each loop
             angular.forEach($scope.tableCols[dayOffset], function(row) {
                 console.log(course.school + course.number + " curr offset: " + offset);
                 if (offset + row.rowspan > timeOffset && keepGoing) {
@@ -136,6 +137,8 @@ app.controller('ScheduleCtrl', [
                         alert("conflict");
                         $scope.delete(course);
                     } else {
+                        //removes the current object and adds a class in place
+                        //maintains the correct offset by adding more objects in front of or behind the class if needed
                         var oldRowspan = row.rowspan;
                         var currIndex = $scope.tableCols[dayOffset].indexOf(row);
                         $scope.tableCols[dayOffset].splice(currIndex, 1);
@@ -170,15 +173,17 @@ app.controller('ScheduleCtrl', [
                         }
                         console.log(course.school + course.number + " added to array for day " + dayOffset + " and offset " + offset);
                     }
-                    keepGoing = false;
+                    keepGoing = false; //end the looping
                 }
                 if (keepGoing) {
+                    //increment
                     offset += row.rowspan;
                     console.log("Offset updated by " + row.rowspan);
                 }
             });
         }
 
+        //to index into the calendar backing array
         function getDayOffset(day) {
             switch(day) {
                 case 'M':
@@ -205,6 +210,7 @@ app.controller('ScheduleCtrl', [
             }
         }
 
+        //used to insert a class into the calendar backing array at the correct offset
         function getTimeOffset(time) {
             var colonAt = time.indexOf(":");
             var startTime = parseInt(time.substring(0, colonAt).trim());
@@ -227,18 +233,21 @@ app.controller('ScheduleCtrl', [
             return startTime;
         }
 
+        //how long the class is. (1 hour = size 2)
         function getTimeDuration(time) {
             var startTime = time.substring(0, time.indexOf("-"));
             var endTime = time.substring(time.indexOf("-") + 1);
             return getTimeOffset(endTime) - getTimeOffset(startTime);
         }
 
+        //populates the dropdown menu to search for schools
         var SCHOOLS_JSON_URL = "http://coursesat.tech/spring2016/";
         $scope.schools = ["Loading..."];
         $http.get(SCHOOLS_JSON_URL).then(function(response) {
             $scope.schools = response.data['schools'];
         });
 
+        //when a school is picked, this populates the dropdown menu with classes from that school
         $scope.updateNumbers = function(school) {
             $scope.numbers = null;
             $http.get(SCHOOLS_JSON_URL + school + '/').then(function(response) {
@@ -246,6 +255,7 @@ app.controller('ScheduleCtrl', [
             });
         }
 
+        //pushes a class to the user's database entry
         $scope.addToSchedule = function() {
             var scheduleData = {
                 'school': $scope.school,
@@ -286,6 +296,7 @@ app.controller('CourseListCtrl', [
         }
         var ref = firebase.database().ref();
         var classData = $firebaseObject(ref.child('school').child($scope.course.school).child($scope.course.number));
+        //gets ratemyprofessor rating for each instructor and adds it to the end of their name.
         classData.$loaded().then(function() {
             $scope.courseName = classData.name;
             $scope.courseSections = classData.sections;
@@ -293,7 +304,10 @@ app.controller('CourseListCtrl', [
                 angular.forEach(section.instructors, function(instructor) {
                     $http.get("https://ratesbu-wrapper-api.appspot.com/Georgia%20Institute%20of%20Technology/" + getLastName(instructor))
                     .success(function(response) {
+                        //if the rating is found
                         if (response) {
+                            //find the professor in the backing array and append the rating to their name
+                            //does not update it in the database so that fresh ratings are used each time
                             for (var i = 0; i < $scope.courseSections.length; i++) {
                                 for (var j = 0; j < $scope.courseSections[i].instructors.length; j++) {
                                     if ($scope.courseSections[i].instructors[j] === instructor) {
@@ -310,8 +324,11 @@ app.controller('CourseListCtrl', [
             });
         });
 
+        //have the class display the sections by default for classes where the
+        //user hasn't chosen a section yet
         $scope.dropIt = $scope.course.section === '';
 
+        //dictionary used to comply with radio button standards
         $scope.selectedSection = {
             val: $scope.course.section
         };

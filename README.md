@@ -18,7 +18,7 @@ T-Schedule is a course scheduling website to help Georgia Tech students register
 * Sign in with email
 * Sign in with facebook
 * Register for an account
-* Forgot password page to reset password
+* Forgot password page to reset password - sends you an email to reset your password
 * Redirects if it detects you are already logged in
 * If you try to visit a page without logging in, you will be redirected back to this page
 

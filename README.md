@@ -10,6 +10,7 @@ T-Schedule is a course scheduling website to help Georgia Tech students register
 * Run the command `npm install` on this terminal - you must be in top level directory (i.e. root) of the project.
 * Run `npm start` in the same spot - this process will keep running until you hit Ctrl-C to end it.
 * Go to localhost:3000 on a web browser to see the website - the website will not be visible if the process from the previous step is not running
+* You need to be connected to the internet for the website to work properly
 
 ## v1.0 - Release Notes:
 

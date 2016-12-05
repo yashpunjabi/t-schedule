@@ -7,7 +7,7 @@ T-Schedule is a course scheduling website to help Georgia Tech students register
 * Clone or download this repository.
 * Install npm (node package manager) - [Install instructions](https://nodejs.org/en/download/).
 * Open a terminal and navigate to the downloaded t-schedule repository.
-* Run the command `npm install` on this terminal - you must be in top level directory (i.e. root) of the project.
+* Run the command `npm install` on this terminal - you must be in top level directory (i.e. root) of the project. This command will automatically install all dependencies needed. [Troubleshooting instructions can be found here if needed](https://github.com/npm/npm/wiki/Troubleshooting)
 * Run `npm start` in the same spot - this process will keep running until you hit Ctrl-C to end it.
 * Go to localhost:3000 on a web browser to see the website - the website will not be visible if the process from the previous step is not running
 * You need to be connected to the internet for the website to work properly
@@ -56,3 +56,13 @@ If you notice a bug or issue not listed here, please report it in the issues sec
 * ISSUE: Schedule page needs 'CORS everywhere' to be enabled on the browser as the API used for RateMyProfessor does not structure their HTTP headers correctly. If it is not enabled, you will simply not see any RMP ratings
 * ISSUE: In the forum pages, 'delete' button is shown for every comment, even if they are not written by the user. You still cannot delete someone else's comment though
 * BUG: Comments can be upvoted or downvoted multiple times instead of once per user
+* BUG: Required Bys on the forum page does not poll the database correctly and so doesn't display them yet
+
+## Features to implement for v2
+* Add custom time slots to the schedule (e.g. group meetings)
+* CourseCritique average GPA included in scheduling page
+* Export the schedule to google/apple maps 
+* Share the schedule on facebook feature
+* Alert if the walking distance between two successive classes is greater than 8 minutes
+* Possible mobile apps
+

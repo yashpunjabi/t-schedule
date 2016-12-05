@@ -66,3 +66,5 @@ If you notice a bug or issue not listed here, please report it in the issues sec
 * Alert if the walking distance between two successive classes is greater than 8 minutes
 * Possible mobile apps
 
+## Instructions for developers
+This application is built almost entirely using AngularJS, HTML, and CSS. The HTML can be found under the views folder as ejs files. [Bootstrap](http://getbootstrap.com/) is used for the CSS (and a single styleshet found in public/stylesheets folder). The bulk of the code is in the AngularJS files that can be found in the public/javascripts folder. This contains all of the website logic. 
